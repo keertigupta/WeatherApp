@@ -3,7 +3,6 @@ package com.example.weatherapp.Model.dataClasses.database
 import android.app.Application
 import android.os.AsyncTask
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.example.weatherapp.Model.dataClasses.WeatherData
 
 class WeatherDatabaseRepository (application:Application) {
@@ -20,8 +19,8 @@ class WeatherDatabaseRepository (application:Application) {
     fun insert(weatherData:WeatherData){
             InsertWeatherAsyTask(weatherDao).execute(weatherData)
     }
-    fun delete(){
-            DeleteWeatherAsyTask(weatherDao).execute()
+    fun delete(city:String){
+            DeleteWeatherAsyTask(weatherDao).execute(city)
     }
     fun getWeatherData():LiveData<WeatherData>{
         return allData
@@ -33,10 +32,10 @@ class WeatherDatabaseRepository (application:Application) {
         }
 
     }
-    private class DeleteWeatherAsyTask(val weatherDao: WeatherDao): AsyncTask<Unit, Unit, Unit>(){
+    private class DeleteWeatherAsyTask(val weatherDao: WeatherDao): AsyncTask<String, Unit, Unit>(){
 
-        override fun doInBackground(vararg params: Unit?) {
-            weatherDao.deleteAll()
+        override fun doInBackground(vararg params: String?) {
+            weatherDao.delete(params[0]!!)
         }
 
     }

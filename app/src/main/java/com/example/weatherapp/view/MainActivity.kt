@@ -72,6 +72,10 @@ class MainActivity : AppCompatActivity() , GoogleApiClient.ConnectionCallbacks, 
       if(requestCode==PERMISSION_ID){
           if(grantResults.isNotEmpty()&& grantResults[0]==PackageManager.PERMISSION_GRANTED){
               // Granted. Start getting the location information
+              if(checkLocationPermission()){
+                 updateUI()
+
+              }
 
           }else{
               Toast.makeText(this, "Need your location!", Toast.LENGTH_SHORT).show();
@@ -92,28 +96,32 @@ class MainActivity : AppCompatActivity() , GoogleApiClient.ConnectionCallbacks, 
     }
     override fun onConnected(p0: Bundle?) {
         if(checkLocationPermission()){
-            val lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient)
-            val lat = lastLocation.latitude
-            val lon = lastLocation.longitude
-            cityName = getCityName(lat,lon)
-            Log.d(">>>>>",cityName)
-            viewModel!!.getWeatherData(cityName)
-            viewModel!!.refreshData().observe(this, Observer {
-                tv_temperature?.text = it.temperature
-                tv_city_country?.text = it.cityAndCountry
-                tv_humidity_value?.text = it.humidity
-                tv_pressure_value?.text = it.pressure
-                tv_visibility_value?.text = it.visibility
-            })
-            viewModel!!.progressBarLiveData.observe(this, Observer { isShowLoader ->
-                if (isShowLoader)
-                    progressBar.visibility = View.VISIBLE
-                else
-                    progressBar.visibility = View.GONE
-            })
+            updateUI()
 
         }
 
+    }
+
+    private fun updateUI() {
+        val lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient)
+        val lat = lastLocation.latitude
+        val lon = lastLocation.longitude
+        cityName = getCityName(lat, lon)
+        // Log.d(">>>>>cityname",cityName)
+        viewModel.getWeatherData(cityName).observe(this, Observer {
+              tv_temperature?.text = it.temperature
+            tv_city_country?.text = it.cityAndCountry
+            tv_humidity_value?.text = it.humidity
+            tv_pressure_value?.text = it.pressure
+            tv_visibility_value?.text = it.visibility
+        })
+
+        viewModel.progressBarLiveData.observe(this, Observer { isShowLoader ->
+            if (isShowLoader)
+                progressBar.visibility = View.VISIBLE
+            else
+                progressBar.visibility = View.GONE
+        })
     }
 
     override fun onConnectionSuspended(p0: Int) {
